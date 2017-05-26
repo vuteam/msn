@@ -192,6 +192,7 @@ void eDBoxLCD::update()
 #ifdef BUILD_VUPLUS
 	return ;
 #endif
+#if defined(DISPLAY_GRAPHICVFD) && !defined(DISPLAY_TEXTVFD)	
 	if (lcdfd >= 0)
 	{
 		if (!is_oled || is_oled == 2)
@@ -233,5 +234,21 @@ void eDBoxLCD::update()
 			write(lcdfd, raw, 64*64);
 		}
 	}
+#endif /*defined(DISPLAY_GRAPHICVFD) && !defined(DISPLAY_TEXTVFD)*/
 }
+ 
+#if defined(DISPLAY_TEXTVFD)
+void eDBoxLCD::updates(ePoint start,char *text)
+{
+	if((lcdfd >= 0) && (start.y() < 5))
+	{
+		int i = 0, text_len = strlen(text);
+		for(; i<text_len ; i++)
+		{
+	                if(text[i]==0x0a) text[i] = 0x20;
+	        }
+		write(lcdfd, text, text_len);
+	}
+}
+#endif /*defined(DISPLAY_TEXTVFD)*/
 
