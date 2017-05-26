@@ -123,11 +123,71 @@ int loadPNG(ePtr<gPixmap> &result, const char *filename)
 		}
 		surface->clut.start=0;
 		png_read_end(png_ptr, end_info);
+#ifndef BUILD_VUPLUS		
 	} else {
 		result=0;
 		eDebug("%s: %dx%dx%d png, %d", filename, (int)width, (int)height, (int)bit_depth, color_type);
 	}
+#else		//csh Support for 32bit png file.
+        }else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA && bit_depth == 8){
+//		eDebug("%s: %dx%dx%d png, %d", filename, (int)width, (int)height, (int)bit_depth, color_type);
+		result=new gPixmap(eSize(width, height), bit_depth*4);
+		gSurface *surface = result->surface;
+		int pass;
+		png_bytep *rowptr=new png_bytep[height];
 
+
+		//png_set_swap_alpha(png_ptr);
+
+		if (color_type & PNG_COLOR_MASK_COLOR)
+			png_set_bgr(png_ptr);
+
+
+
+		int number_passes = png_set_interlace_handling(png_ptr);
+
+		for (unsigned int i=0; i<height; i++)
+			rowptr[i]=((png_byte*)(surface->data))+i*surface->stride;
+
+		for (pass = 0; pass < number_passes; pass++)
+			for (int y = 0; y < height; y++)
+			{
+				png_read_rows(png_ptr, &rowptr[y], NULL, 1);
+			}
+
+/*
+		png_bytep testptr = rowptr[32] + sizeof(unsigned int)*32;
+
+		for(int i = 0 ; i < 40 ; i ++)
+			fprintf(stderr, "0x%x\n", testptr[i]);
+*/
+		for (int y = 0; y < height; y++){				//csh  
+			__u32 col;			
+			unsigned int *ptr = (unsigned int *)rowptr[y];
+			for(int i = 0 ; i < width ; i ++){
+				col= ptr[i];
+				col ^=0xFF000000;
+				ptr[i] = col;
+			}
+		}
+ 
+		surface->clut.data=0;
+		surface->clut.colors=0;
+		surface->clut.start=0; 
+/*
+		testptr = rowptr[32] + sizeof(unsigned int)*32;
+		fprintf(stderr, "----------------------------------------------\n");
+		for(int i = 0 ; i < 40 ; i ++)
+			fprintf(stderr, "0x%x\n", testptr[i]);
+*/
+		delete [] rowptr;
+		png_read_end(png_ptr, end_info);
+
+	} else {
+		result=0;
+		eDebug("%s: %dx%dx%d png, %d", filename, (int)width, (int)height, (int)bit_depth, color_type);
+	}
+#endif
 	png_destroy_read_struct(&png_ptr, &info_ptr,&end_info);
 	fclose(fp);
 	return 0;
