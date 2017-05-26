@@ -40,8 +40,8 @@ class DeliteSettings(Screen):
         elif self.sel == 2:
             self.session.open(DeliteSetupOSD2)
         elif self.sel == 3:
-            from BHDevice import BHDevicesPanel
-            self.session.open(BHDevicesPanel)
+            from Plugins.SystemPlugins.DeviceManager.plugin import DeviceManager
+            self.session.open(DeviceManager)
         elif self.sel == 4:
             from Screens.Setup import Setup
             self.session.open(Setup, 'subtitlesetup')
