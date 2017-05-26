@@ -29,6 +29,33 @@ def getProcMounts():
 		item[1] = item[1].replace('\\040', ' ')
 	return result
 
+def CheckSfdiskVer():
+	cmd = 'sfdisk --version'
+	lines = popen(cmd).readlines()
+	for l in lines:
+		if l.find("sfdisk from util-linux") != -1:
+			ver = l.split()[-1].strip()
+			break
+	try:
+		vs = ver.split('.')
+		if len(vs) > 2:
+			ver = '.'.join(vs[:2])
+
+		ver = float(ver)
+	except:
+		print "[CheckSfdiskVer] check parted version Failed!"
+		return 0
+return ver
+
+def enableUdevEvent(enable = True):
+	if enable:
+		option = '--start-exec-queue'
+	else:
+		option = '--stop-exec-queue'
+	cmd = "udevadm control %s" % option
+	print "CMD : ", cmd
+system(cmd)
+
 DEVTYPE_UDEV = 0
 DEVTYPE_DEVFS = 1
 
@@ -240,17 +267,58 @@ class Harddisk:
                                 return True
                         time.sleep(1)
                 return False
+	
+	def updatePartition(self):
+		sfdiskVer = CheckSfdiskVer()
+		if sfdiskVer < 2.26: # sfdisk -R option is deprecated at sfdiskVer >= 2.26
+			cmd = 'sfdisk -R %s; sleep 5' % (self.disk_path)
+		elif path.exists('/usr/sbin/partprobe'):
+			cmd = 'partprobe %s; sleep 5' % (self.disk_path)
+		elif path.exists('/usr/sbin/partx'):
+			cmd = 'partx -u %s' % (self.disk_path)
+		else:
+			return -1
+
+		print "CMD : ", cmd
+		res = system(cmd)
+
+                return (res >> 8)
 
 	def createPartition(self):
 				
-		if self.diskSize() < 300000:
-			cmd = 'printf "8,\nwrite\n" | sfdisk -f -uS ' + self.disk_path
-			res = system(cmd)
+		def CheckPartedVer():
+			cmd = 'parted --version'
+			lines = popen(cmd).readlines()
+			for l in lines:
+				if l.find("parted (GNU parted)") != -1:
+					ver = l.split()[3].strip()
+					break
+			try:
+				ver = float(ver)
+			except:
+				print "[CheckPartedVer] check parted version Failed!"
+				return 0
+			return ver
+
+		disk_size = self.diskSize()
+
+		if disk_size > 2.2 * 1000 * 1000: # if 2.2 TB
+			setAlign = ""
+			partedVer = CheckPartedVer()
+			if partedVer >= 2.1: # align option is supported in version 2.1 or later
+				setAlign = "--align optimal"
+			cmd = 'parted %s %s --script mklabel gpt mkpart disk ext2 0%% 100%%' % ( setAlign, self.disk_path )
+
 		else:
-			cmd = 'parted ' + self.disk_path + ' --script -- mklabel gpt'
-			res = system(cmd)
-			cmd = 'parted ' + self.disk_path + ' --align optimal --script -- mkpart primary 1 100%'
-			res = system(cmd)
+			sfdiskVer = CheckSfdiskVer()
+			if sfdiskVer <= 2.21:
+				cmd = 'printf "8,\n;0,0\n;0,0\n;0,0\ny\n" | sfdisk -f -uS ' + self.disk_path
+			else:
+				cmd = 'printf "8,\nquit\nY\n" | sfdisk -f -uS ' + self.disk_path
+
+		print "CMD : ", cmd
+                res = system(cmd)
+			
 
 		if not self.checkPartionPath(self.partitionPath("1")):
 			print "no exist : ", self.partitionPath("1")
