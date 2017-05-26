@@ -45,7 +45,7 @@ def CheckSfdiskVer():
 	except:
 		print "[CheckSfdiskVer] check parted version Failed!"
 		return 0
-return ver
+        return ver
 
 def enableUdevEvent(enable = True):
 	if enable:
@@ -54,7 +54,7 @@ def enableUdevEvent(enable = True):
 		option = '--stop-exec-queue'
 	cmd = "udevadm control %s" % option
 	print "CMD : ", cmd
-system(cmd)
+        system(cmd)
 
 DEVTYPE_UDEV = 0
 DEVTYPE_DEVFS = 1
