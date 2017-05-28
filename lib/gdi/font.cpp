@@ -580,6 +580,35 @@ int eTextPara::renderString(const char *string, int rflags, int border)
 {
 	singleLock s(ftlock);
 	
+	if(string && string[0]){
+		char *ptr;
+//		ptr = string;  
+//		while(1)
+//		{
+//			char *enigma = strcasestr(ptr, "enigma");
+//			if(enigma)
+//			{
+//				strncpy(enigma,"dvbapp",6); 
+//				ptr = enigma;
+//			}
+//			else
+//				break;
+//		}
+//	
+		ptr = (char *)string; 
+		while(1)
+		{
+			char *dreambox = strcasestr(ptr, "dreambox");
+			if(dreambox)
+			{
+				strncpy(dreambox,"setopbox",8); 
+				ptr = dreambox;
+			}
+			else
+				break;
+		}
+	}
+	
 	if (!current_font)
 		return -1;
 
