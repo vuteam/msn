@@ -36,6 +36,9 @@ public:
 	int stride() { return _stride; }
 	eSize size() { return res; }
 	virtual void update()=0;
+#if defined(DISPLAY_TEXTVFD)
+	virtual void updates(ePoint start,char *text) = 0;
+#endif /*defined(DISPLAY_TEXTVFD)*/	
 #endif
 };
 
@@ -59,6 +62,9 @@ public:
 	void setInverted( unsigned char );
 	bool isOled() const { return !!is_oled; }
 	void update();
+#if defined(DISPLAY_TEXTVFD)
+	void updates(ePoint start,char *text);
+#endif /*defined(DISPLAY_TEXTVFD)*/	
 };
 
 #endif
