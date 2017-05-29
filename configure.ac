@@ -70,6 +70,26 @@ if test x"$setrighthalfvfdskin" != xno ; then
 fi
 AM_CONDITIONAL(SET_RIGHT_HALF_VFD_SKIN, test x"$setrighthalfvfdskin" != xno)
 
+AC_ARG_WITH(display-text-vfd,
+        AC_HELP_STRING([--with-display-text-vfd], [use text based vfd, yes or no]),
+        [[withtextvfd=$withval]],
+        [[withtextvfd=no]]
+)
+if test x"$withtextvfd" != xno ; then
+        AC_DEFINE(DISPLAY_TEXTVFD, 1,[Define when using an text based vfd device])
+fi
+AM_CONDITIONAL(DISPLAY_TEXTVFD, test x"$withtextvfd" != xno)
+
+AC_ARG_WITH(display-graphic-vfd,
+        AC_HELP_STRING([--with-display-graphic-vfd], [use graphic based vfd, yes or no]),
+        [[withgraphicvfd=$withval]],
+        [[withgraphicvfd=no]]
+)
+if test x"$withgraphicvfd" != xno ; then
+        AC_DEFINE(DISPLAY_GRAPHICVFD, 1,[Define when using an graphic based vfd device])
+fi
+AM_CONDITIONAL(DISPLAY_GRAPHICVFD, test x"$withgraphicvfd != xno")
+
 AC_ARG_WITH(libvugles2,
 	AS_HELP_STRING([--with-libvugles2],[use libvugles2, yes or no]),
 	[with_libvugles2=$withval],[with_libvugles2=no])
