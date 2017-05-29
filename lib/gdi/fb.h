@@ -9,8 +9,8 @@ class fbClass
 	int fd;
 	unsigned int xRes, yRes, stride, bpp;
 	int available;
-//Blackhole
-//	struct fb_var_screeninfo screeninfo, oldscreen;
+
+	struct fb_var_screeninfo screeninfo, oldscreen;
 	fb_cmap cmap;
 	__u16 red[256], green[256], blue[256], trans[256];
 	static fbClass *instance;
