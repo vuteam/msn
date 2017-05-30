@@ -14,6 +14,9 @@
 #include <lib/gdi/esize.h>
 #include <lib/base/init.h>
 #include <lib/base/init_num.h>
+#ifdef HAVE_TEXTLCD
+	#include <lib/base/estring.h>
+#endif
 #include <lib/gdi/glcddc.h>
 
 eDBoxLCD *eDBoxLCD::instance;
@@ -51,6 +54,18 @@ void eLCD::unlock()
 {
 	locked=0;
 }
+
+#ifdef HAVE_TEXTLCD
+void eLCD::renderText(ePoint start, const char *text)
+{
+	if (lcdfd >= 0 && start.y() < 5)
+	{
+		std::string message = text;
+		message = replace_all(message, "\n", " ");
+		::write(lcdfd, message.c_str(), message.size());
+	}
+}
+#endif
 
 eDBoxLCD::eDBoxLCD()
 {
@@ -189,7 +204,7 @@ eDBoxLCD *eDBoxLCD::getInstance()
 
 void eDBoxLCD::update()
 {
-#if defined(DISPLAY_GRAPHICVFD) && !defined(DISPLAY_TEXTVFD)
+#ifndef HAVE_TEXTLCD
 	if (lcdfd >= 0)
 	{
 		if (!is_oled || is_oled == 2)
@@ -231,20 +246,4 @@ void eDBoxLCD::update()
 			write(lcdfd, raw, 64*64);
 		}
 	}
-#endif /*defined(DISPLAY_GRAPHICVFD) && !defined(DISPLAY_TEXTVFD)*/	
 }
-
-#if defined(DISPLAY_TEXTVFD)
-void eDBoxLCD::updates(ePoint start,char *text)
-{
-	if((lcdfd >= 0) && (start.y() < 5))
-	{
-		int i = 0, text_len = strlen(text);
-		for(; i<text_len ; i++)
-		{
-	                if(text[i]==0x0a) text[i] = 0x20;
-	        }
-		write(lcdfd, text, text_len);
-	}
-}
-#endif /*defined(DISPLAY_TEXTVFD)*/
