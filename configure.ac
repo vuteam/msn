@@ -90,16 +90,6 @@ if test x"$withgraphicvfd" != xno ; then
 fi
 AM_CONDITIONAL(DISPLAY_GRAPHICVFD, test x"$withgraphicvfd != xno")
 
-AC_ARG_WITH(textlcd,
-	AC_HELP_STRING([--with-textlcd], [use ascii based lcd, yes or no]),
-	[[withtextlcd=$withval]],
-	[[withtextlcd=no]]
-)
-if test x"$withtextlcd" != xno ; then
-	AC_DEFINE(HAVE_TEXTLCD, 1,[Define when using an ascii based lcd device])
-fi
-AM_CONDITIONAL(HAVE_TEXTLCD, test x"$withtextlcd" != xno)
-
 AC_ARG_WITH(libvugles2,
 	AS_HELP_STRING([--with-libvugles2],[use libvugles2, yes or no]),
 	[with_libvugles2=$withval],[with_libvugles2=no])
