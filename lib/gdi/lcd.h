@@ -29,7 +29,6 @@ public:
 	void unlock();
 	int islocked() { return locked; }
 	bool detected() { return lcdfd >= 0; }
-	virtual void setPalette(gUnmanagedSurface)=0;
 #ifndef SWIG
 	eLCD();
 	virtual ~eLCD();
@@ -37,9 +36,9 @@ public:
 	int stride() { return _stride; }
 	eSize size() { return res; }
 	virtual void update()=0;
-#ifdef HAVE_TEXTLCD
-	virtual void renderText(ePoint start, const char *text);
-#endif 
+#if defined(DISPLAY_TEXTVFD)
+	virtual void updates(ePoint start,char *text) = 0;
+#endif /*defined(DISPLAY_TEXTVFD)*/
 #endif
 };
 
@@ -62,8 +61,10 @@ public:
 	int setLCDBrightness(int brightness);
 	void setInverted( unsigned char );
 	bool isOled() const { return !!is_oled; }
-	void setPalette(gUnmanagedSurface) {};
 	void update();
+#if defined(DISPLAY_TEXTVFD)
+	void updates(ePoint start,char *text);
+#endif /*defined(DISPLAY_TEXTVFD)*/
 };
 
 #endif
