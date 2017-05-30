@@ -29,6 +29,7 @@ public:
 	void unlock();
 	int islocked() { return locked; }
 	bool detected() { return lcdfd >= 0; }
+	virtual void setPalette(gUnmanagedSurface)=0;
 #ifndef SWIG
 	eLCD();
 	virtual ~eLCD();
@@ -61,6 +62,7 @@ public:
 	int setLCDBrightness(int brightness);
 	void setInverted( unsigned char );
 	bool isOled() const { return !!is_oled; }
+	void setPalette(gUnmanagedSurface) {};
 	void update();
 };
 
