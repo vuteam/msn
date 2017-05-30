@@ -34,25 +34,24 @@ void gLCDDC::exec(const gOpcode *o)
 {
 	switch (o->opcode)
 	{
-	case gOpcode::setPalette:
-	{
-		gDC::exec(o);
-		lcd->setPalette(surface);
-		break;
-}
-#ifdef HAVE_TEXTLCD
+#if defined(DISPLAY_TEXTVFD)
 	case gOpcode::renderText:
 		if (o->parm.renderText->text)
 		{
-			lcd->renderText(gDC::m_current_offset, o->parm.renderText->text);
+			lcd->updates(gDC::m_current_offset, o->parm.renderText->text);
 			free(o->parm.renderText->text);
+			delete o->parm.renderText;
 		}
-		delete o->parm.renderText;
 		break;
-#endif		
+#endif /*defined(DISPLAY_TEXTVFD)*/
 	case gOpcode::flush:
-		lcd->update();
-        default:
+#if defined(DISPLAY_GRAPHICVFD) && !defined(DISPLAY_TEXTVFD)
+//		if (update)
+			lcd->update();
+#else
+		;
+#endif /*defined(DISPLAY_GRAPHICVFD) && !defined(DISPLAY_TEXTVFD)*/
+	default:
 		gDC::exec(o);
 		break;
 	}
